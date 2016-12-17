@@ -1,4 +1,11 @@
 "use strict";
+var socket = io.connect(window.location.hostname);
+// var socket=io.connect('localhost:8080',{'forceNew':true});
+
+socket.on('draw', function(data) {
+	draw(data.pX,data.pY,data.cX,data.cY);
+});
+
 var canvas, ctx,
     flag = false,
     canDraw = true;
@@ -9,7 +16,7 @@ var prevX = 0,
     currY = 0;
 
 var color = "black",
-	line = 2;
+	line = 1;
 
 
 window.onload = function(){
@@ -52,10 +59,10 @@ window.onload = function(){
 
 	});
 }
-function draw() {
+function draw(pX,pY,cX,cY) {
     ctx.beginPath();
-    ctx.moveTo(prevX, prevY);
-    ctx.lineTo(currX, currY);
+    ctx.moveTo(pX, pY);
+    ctx.lineTo(cX, cY);
     ctx.strokeStyle = color;
     ctx.lineWidth = line;
     ctx.stroke();
@@ -79,7 +86,9 @@ function findxy(res, e) {
 	            prevY = currY;
 	            currX = e.clientX - canvas.offsetLeft;
 	            currY = e.clientY - canvas.offsetTop;
-	            draw();
+	            let data = {pX:prevX,pY:prevY,cX:currX,cY:currY};
+	            socket.emit('draw',data);
+	            draw(prevX,prevY,currX,currY);
 	        }
 	    }
     }
