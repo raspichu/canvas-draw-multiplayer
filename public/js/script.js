@@ -1,10 +1,6 @@
 "use strict";
-var socket = io.connect(window.location.hostname);
-// var socket=io.connect('localhost:8080',{'forceNew':true});
-
-socket.on('draw', function(data) {
-	draw(data.pX,data.pY,data.cX,data.cY);
-});
+// var socket = io.connect(window.location.hostname);
+var socket=io.connect('localhost:8080',{'forceNew':true});
 
 var canvas, ctx,
     flag = false,
@@ -19,11 +15,20 @@ var color = "black",
 	line = 1;
 
 
+
 window.onload = function(){
    	canvas = document.getElementById('can'),
 	ctx = canvas.getContext("2d"),
 	canvas.width = $('#cont').width();
 	canvas.height = $('#cont').height();
+
+	socket.on('draw', function(data) {
+		draw(data.pX,data.pY,data.cX,data.cY);
+	});
+	socket.on('clearAll', function(data) {
+		clear();
+	});
+
     canvas.addEventListener("mousemove", function (e) {
         findxy('move', e)
     }, false);
@@ -48,7 +53,9 @@ window.onload = function(){
     canvas.addEventListener('touchcancel', function(e){
     	findxy('out', e)
     });
+    
     $('#clr').click(function(){
+    	socket.emit('clearAll',true);
         clear();
     });
     $(window).resize(function() {
@@ -71,6 +78,7 @@ window.onload = function(){
 
 	});
 }
+
 function draw(pX,pY,cX,cY) {
     ctx.beginPath();
     ctx.moveTo(pX, pY);
@@ -80,6 +88,7 @@ function draw(pX,pY,cX,cY) {
     ctx.stroke();
     ctx.closePath();
 }
+
 function findxy(res, e) {
 	if (canDraw){
 	    if (res == 'down') {

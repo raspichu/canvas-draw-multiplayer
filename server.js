@@ -8,6 +8,8 @@ var port = process.env.PORT || 8080;
 
 app.set('view engine', 'ejs');
 
+var allDraw = {img:null};
+
 // app.use(BodyParser.json());
 // app.use(BodyParser.urlencoded({
 	// extended: true
@@ -19,6 +21,9 @@ io.on('connection', function(socket) {
 	console.log('Client connected');
 	socket.on('draw', function(data) {
 		io.sockets.emit('draw', data);
+	});
+	socket.on('clearAll',function(data){
+		io.sockets.emit('clearAll',true);
 	});
 	socket.on('disconnect', function() {
 		console.log('Client disconnected');
