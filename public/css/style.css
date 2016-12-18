@@ -26,11 +26,8 @@ html, body {
 }
 @media only screen and (max-width: 500px), only screen and (max-device-width: 500px) {
 	#clr{
-		width:250px;
+		width:400px;
 		height: 100px;
 		font-size: 50px;
-	}
-	#buttons{
-
 	}
 }

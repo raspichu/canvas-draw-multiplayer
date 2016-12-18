@@ -1,6 +1,7 @@
 "use strict";
 var socket = io.connect(window.location.hostname);
 // var socket=io.connect('localhost:8080',{'forceNew':true});
+// var socket=io.connect('192.168.0.11:8080',{'forceNew':true});
 
 var canvas, ctx,
     flag = false,
