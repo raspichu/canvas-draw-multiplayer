@@ -36,6 +36,18 @@ window.onload = function(){
     canvas.addEventListener("mouseout", function (e) {
         findxy('out', e)
     }, false);
+    canvas.addEventListener('touchstart', function(e){
+    	findxy('down', e)
+    });
+    canvas.addEventListener('touchend', function(e){
+    	findxy('up', e)
+    });
+    canvas.addEventListener('touchmove', function(e){
+    	findxy('move', e)
+    });
+    canvas.addEventListener('touchcancel', function(e){
+    	findxy('out', e)
+    });
     $('#clr').click(function(){
         clear();
     });
@@ -73,8 +85,8 @@ function findxy(res, e) {
 	    if (res == 'down') {
 	        prevX = currX;
 	        prevY = currY;
-	        currX = e.clientX - canvas.offsetLeft;
-	        currY = e.clientY - canvas.offsetTop;
+	        currX = (e.clientX || e.touches[0].clientX) - canvas.offsetLeft;
+	        currY = (e.clientY || e.touches[0].clientY) - canvas.offsetTop;
 	        flag = true;
 	    }
 	    if (res == 'up' || res == "out") {
@@ -84,8 +96,8 @@ function findxy(res, e) {
 	        if (flag) {
 	            prevX = currX;
 	            prevY = currY;
-	            currX = e.clientX - canvas.offsetLeft;
-	            currY = e.clientY - canvas.offsetTop;
+	            currX = (e.clientX || e.touches[0].clientX) - canvas.offsetLeft;
+	            currY = (e.clientY || e.touches[0].clientY) - canvas.offsetTop;
 	            let data = {pX:prevX,pY:prevY,cX:currX,cY:currY};
 	            socket.emit('draw',data);
 	            draw(prevX,prevY,currX,currY);
