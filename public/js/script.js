@@ -1,6 +1,6 @@
 "use strict";
-// var socket = io.connect(window.location.hostname);
-var socket=io.connect('localhost:8080',{'forceNew':true});
+var socket = io.connect(window.location.hostname);
+// var socket=io.connect('localhost:8080',{'forceNew':true});
 
 var canvas, ctx,
     flag = false,
@@ -53,7 +53,7 @@ window.onload = function(){
     canvas.addEventListener('touchcancel', function(e){
     	findxy('out', e)
     });
-    
+
     $('#clr').click(function(){
     	socket.emit('clearAll',true);
         clear();
