@@ -13,7 +13,8 @@ var prevX = 0,
     currY = 0;
 
 var color = "black",
-	line = 1;
+	line = 1,
+	ers = false;
 
 
 
@@ -24,7 +25,7 @@ window.onload = function(){
 	canvas.height = $('#cont').height();
 
 	socket.on('draw', function(data) {
-		draw(data.pX,data.pY,data.cX,data.cY);
+		draw(data.pX,data.pY,data.cX,data.cY,data.cl,data.lin);
 	});
 	socket.on('clearAll', function(data) {
 		clear();
@@ -59,6 +60,20 @@ window.onload = function(){
     	socket.emit('clearAll',true);
         clear();
     });
+    $('#ers').click(function(){
+    	if (ers){
+    		 $('#ers').val("Erase")
+    		ers=false;
+    		color="black";
+    		line = 1;
+    	} else {
+    		 $('#ers').val("Draw")
+    		ers=true;
+    		color = "white";
+    		line = 10;
+    	}
+    	
+    });
     $(window).resize(function() {
     	canDraw = false;
 	    if(this.resizeTO) clearTimeout(this.resizeTO);
@@ -80,12 +95,12 @@ window.onload = function(){
 	});
 }
 
-function draw(pX,pY,cX,cY) {
+function draw(pX,pY,cX,cY,cl,lin) {
     ctx.beginPath();
     ctx.moveTo(pX, pY);
     ctx.lineTo(cX, cY);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = line;
+    ctx.strokeStyle = cl;
+    ctx.lineWidth = lin;
     ctx.stroke();
     ctx.closePath();
 }
@@ -108,9 +123,9 @@ function findxy(res, e) {
 	            prevY = currY;
 	            currX = (e.clientX || e.touches[0].clientX) - canvas.offsetLeft;
 	            currY = (e.clientY || e.touches[0].clientY) - canvas.offsetTop;
-	            let data = {pX:prevX,pY:prevY,cX:currX,cY:currY};
+	            let data = {pX:prevX,pY:prevY,cX:currX,cY:currY,cl:color,lin:line};
 	            socket.emit('draw',data);
-	            draw(prevX,prevY,currX,currY);
+	            draw(prevX,prevY,currX,currY,color,line);
 	        }
 	    }
     }
