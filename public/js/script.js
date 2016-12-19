@@ -70,7 +70,7 @@ window.onload = function(){
     		 $('#ers').val("Draw")
     		ers=true;
     		color = "white";
-    		line = 10;
+    		line = 17;
     	}
     	
     });
