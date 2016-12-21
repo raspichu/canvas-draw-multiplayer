@@ -2,10 +2,11 @@
 var socket = io.connect(window.location.hostname);
 // var socket=io.connect('localhost:8080',{'forceNew':true});
 // var socket=io.connect('192.168.0.11:8080',{'forceNew':true});
+var user = null;
 
 var canvas, ctx,
     flag = false,
-    canDraw = true;
+    canDraw = false;
 
 var prevX = 0,
     currX = 0,
@@ -16,20 +17,31 @@ var color = "black",
 	line = 1,
 	ers = false;
 
-
+socket.on('draw', function(data) {
+    draw(data.pX,data.pY,data.cX,data.cY,data.cl,data.lin);
+});
+socket.on('clearAll', function(data) {
+    clear();
+});
+socket.on('chat', function(data) {
+    writeChat(data);
+});
+socket.on('users', function(data) {
+    writeUsers(data);
+});
+socket.on('whoDraw', function(data) {
+    whoDraw(data);
+});
+socket.on('count', function(data) {
+    count(data);
+});
 
 window.onload = function(){
    	canvas = document.getElementById('can'),
 	ctx = canvas.getContext("2d"),
-	canvas.width = $('#cont').width();
-	canvas.height = $('#cont').height();
+	canvas.width = $('#can').width();
+	canvas.height = $('#can').height();
 
-	socket.on('draw', function(data) {
-		draw(data.pX,data.pY,data.cX,data.cY,data.cl,data.lin);
-	});
-	socket.on('clearAll', function(data) {
-		clear();
-	});
 
     canvas.addEventListener("mousemove", function (e) {
         findxy('move', e)
@@ -56,9 +68,69 @@ window.onload = function(){
     	findxy('out', e)
     });
 
+
+    $('#talk').keydown(function(e){
+        if (e.keyCode == 13 && user && $('#talk').val()){
+            if ($('#talk').val().length > 50){
+                alert('Text too long')
+            } else {
+                socket.emit('chat', {data:$('#talk').val(),name:user});
+                $('#talk').val('')
+            }
+        }   
+    })
+    if (localStorage.name && localStorage.id){
+         $.ajax({
+            url: '/oldLogin',
+            data: {name:localStorage.name,id:localStorage.id},
+            method: 'POST',
+            success: function(res) {
+                if (res.error) {
+                    localStorage.setItem('name', res.data.name);
+                    localStorage.setItem('id', res.data.id);
+                }
+                socket.emit('login', res.data);
+                socket.emit('users', null);
+                user = res.data.name;
+                $("#login").css("display", "none");
+                $("#all").css("display", "flex");
+            }
+        });
+    } else {
+        $("#login").css("display", "flex");
+    }
+
+    $('#login>input').keydown(function(e){
+        if (e.keyCode == 13 && $('#login>input').val()){
+            if ($('#login>input').val().length > 10){
+                alert('Name too long')
+            } else {
+                $.ajax({
+                    url: '/login',
+                    data: {name:$('#login>input').val()},
+                    method: 'POST',
+                    success: function(res) {
+                        if (res.error) {
+                            console.log(res.data);
+                        } else {
+                            localStorage.setItem('name', res.data.name);
+                            localStorage.setItem('id', res.data.id);
+                            $("#login").css("display", "none");
+                            $("#all").css("display", "flex");
+                            socket.emit('login', res.data);
+                            socket.emit('users', null);
+                            user = res.data.name;
+                        }
+                    }
+                });
+            }
+        }   
+    })
     $('#clr').click(function(){
-    	socket.emit('clearAll',true);
-        clear();
+        if (canDraw){
+            socket.emit('clearAll',true);
+            clear(); 
+        }
     });
     $('#ers').click(function(){
     	if (ers){
@@ -74,27 +146,48 @@ window.onload = function(){
     	}
     	
     });
-    $(window).resize(function() {
-    	canDraw = false;
-	    if(this.resizeTO) clearTimeout(this.resizeTO);
-	    this.resizeTO = setTimeout(function() {
-	        $(this).trigger('resizeEnd');
-	    }, 500);
-	});
-    $(window).bind('resizeEnd', function() {
-    	var oldCanvas = canvas.toDataURL("image/png");
-		var img = new Image();
-		img.src = oldCanvas;
-		img.onload = function (){
-			canvas.width = $('#cont').width();
-			canvas.height = $('#cont').height();
-		    ctx.drawImage(img, 0, 0);
-		    setTimeout(function(){canDraw = true},500);;
-		}
-
-	});
 }
+function count (data){
+    $('#count').html(data)
+}
+function whoDraw(data){
+    if(data.drawing.name==user && data.drawing.id == localStorage.id){
+        $( "#talk" ).prop("disabled",true);
+        $( "#clr" ).prop("disabled",false);
+        $( "#ers" ).prop("disabled",false);
+        canDraw = true;
+        $( "#canDraw" ).html("You have to draw: "+data.word);
+    } else {
+        $( "#talk" ).prop("disabled",false);
+        $( "#clr" ).prop("disabled",true);
+        $( "#ers" ).prop("disabled",true);
+        canDraw = false;
+        $( "#canDraw" ).html(data.drawing.name+" is drawing");
+    }
+    
 
+}
+function writeChat(data){
+    let html = "";
+    for (let index of data){
+        if (index.name){
+            html+="<div class='chatext'><div class='name'>"+index.name+": </div> <div class='text'> "+index.data+"</div></div>";
+        } else {
+            html+="<div class='chatext'><div class='cool'> "+index.data+"</div></div>";
+        }
+    }
+
+    $('#chat').html(html);
+    var elem = document.getElementById('chat');
+    elem.scrollTop = elem.scrollHeight;
+}
+function writeUsers(data){
+    let html = "";
+    for (let index of data){
+        html+="<div class='chatext'><div class='name'>"+index.name+" - </div> "+index.points+"</div>";
+    }
+    $('#users').html(html);
+}
 function draw(pX,pY,cX,cY,cl,lin) {
     ctx.beginPath();
     ctx.moveTo(pX, pY);

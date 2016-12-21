@@ -5,16 +5,68 @@ body{
 	align-items: center;
 }
 #cont{
-    width: 80%;
-    height: 80%;
-    border:1px solid black;
-	
+    display:flex;
+    justify-content: center;
+    width: 90%;
 }
 #can{
-	width: 100%;
-    height: 100%;
-	
+	width: 600px;
+    height: 600px;
+	border:1px solid black;
 	cursor: crosshair;
+}
+#right{
+	display:flex;
+	flex-direction: column;
+	width: 30%;
+}
+#users,#chat{
+	overflow: auto;
+	border:1px solid black;
+	border-left:0px;
+	width: 100%;
+	min-width: 200px;
+}
+#users{
+	min-height: 176px;
+	max-height: 176px;
+}
+#chat{
+	border-top:0px;
+	min-height: 405px;
+	max-height: 405px;
+}
+#talk{
+	border:1px solid black;
+	border-top:0px;
+	border-left:0px;
+	width: 100%;
+	min-width: 200px;
+}
+#login{
+	display:none;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+}
+#all{
+	display:none;
+	align-items: center;
+	flex-direction: column;
+}
+.name{
+	color:lightgreen;
+}
+.chatext{
+	display:flex;
+	margin: 2px 2px 2px 2px;
+}
+.text{
+	word-break: break-all;
+	margin-left: 2px;
+}
+.cool{
+	color:green;
 }
 body>div{
 	margin-top: 20px;
