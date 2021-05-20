@@ -1,19 +1,18 @@
 "use strict";
-var socket = io.connect(window.location.hostname);
-// var socket=io.connect('localhost:8080',{'forceNew':true});
-// var socket=io.connect('192.168.0.11:8080',{'forceNew':true});
-var user = null;
+const socket = io.connect(window.location.host, { path: window.location.pathname+"socket.io" });
 
-var canvas, ctx,
+let user = null;
+
+let canvas, ctx,
     flag = false,
     canDraw = false;
 
-var prevX = 0,
+let prevX = 0,
     currX = 0,
     prevY = 0,
     currY = 0;
 
-var color = "black",
+let color = "black",
 	line = 1,
 	ers = false;
 
@@ -81,7 +80,7 @@ window.onload = function(){
     })
     if (localStorage.name && localStorage.id){
          $.ajax({
-            url: '/oldLogin',
+            url: './oldLogin',
             data: {name:localStorage.name,id:localStorage.id},
             method: 'POST',
             success: function(res) {
@@ -106,7 +105,7 @@ window.onload = function(){
                 alert('Name too long')
             } else {
                 $.ajax({
-                    url: '/login',
+                    url: './login',
                     data: {name:$('#login>input').val()},
                     method: 'POST',
                     success: function(res) {
@@ -178,7 +177,7 @@ function writeChat(data){
     }
 
     $('#chat').html(html);
-    var elem = document.getElementById('chat');
+    let elem = document.getElementById('chat');
     elem.scrollTop = elem.scrollHeight;
 }
 function writeUsers(data){
